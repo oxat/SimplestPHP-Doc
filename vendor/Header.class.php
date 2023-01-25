@@ -62,18 +62,22 @@ class Header {
      * @param  string $dir [Directory of the file]
      * @return boolean
      */
-    public static function cache(string $dir) {
-        $last = filemtime($dir); 
-        $etag = md5_file($dir);
-        header("Cache-Control: max-age=" . self::CACHETIME);
-        header("Last-Modified: ".gmdate("D, d M Y H:i:s", $last)." GMT"); 
-        header("Etag: " . $etag);
-        if (!array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER) || !array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
-            return false;
-        } else if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag) { 
-            http_response_code(304);
-            return true;
-        }
-        return false;
-    }
+     public static function cache(string $dir) {
+		if (file_exists($dir) && is_readable($dir)) {
+			$last = filemtime($dir);
+			$etag = md5_file($dir);
+			header("Cache-Control: max-age=" . self::CACHETIME);
+			header("Last-Modified: ".gmdate("D, d M Y H:i:s", $last)." GMT"); 
+			header("Etag: " . $etag);
+			if (!array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER) || !array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
+				return false;
+			} else if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag) { 
+				http_response_code(304);
+				return true;
+			}
+		} else {
+			echo "Error: File does not exist or is not readable.";
+		}
+		return false;
+	}
 }
