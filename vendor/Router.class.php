@@ -15,21 +15,26 @@ class Router {
     /**
      * Initialize the routes system
      */
-    public function initialize() {
-        $file = DIRECTORY . SEPARATOR . substr(\App::getUrl(), 1);
-        $ext  = pathinfo($file, PATHINFO_EXTENSION);
-        $mime = Mimetype::getByExtension($ext);
-        if ($mime) {
-            ob_start();
-            Header::set($mime);
-            Header::cache($file);
-            print file_get_contents($file);
-            ob_flush();
-        } else if ($this->error404) {
-            $page = substr(\App::getUrl(), 1);
-            new Functions\Error404($page);
-        }
-    }
+	public function initialize() {
+		$file = DIRECTORY . SEPARATOR . substr(\App::getUrl(), 1);
+		$ext  = pathinfo($file, PATHINFO_EXTENSION);
+		$mime = Mimetype::getByExtension($ext);
+		if (file_exists($file) && is_readable($file)) {
+			if ($mime) {
+				ob_start();
+				Header::set($mime);
+				Header::cache($file);
+				print file_get_contents($file);
+				ob_flush();
+			} else if ($this->error404) {
+				$page = substr(\App::getUrl(), 1);
+				new Functions\Error404($page);
+			}
+		}elseif ($this->error404) {
+			$page = substr(\App::getUrl(), 1);
+			new Functions\Error404($page);
+		}
+	}
 
     /**
      * Add a new route
