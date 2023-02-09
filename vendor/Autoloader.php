@@ -120,16 +120,21 @@ class App {
     /**
      * Detect and store the browser language
      */
-    public static function setLanguage(): string {
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			$lang = $_POST['language'];
-			setcookie('lang', $lang, strtotime('+10 years'));
-		} else {
-			$lang = self::detectLanguage();
-		}
-		require_once(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $lang . '.php');
-		return $lang;
+   public static function setLanguage(): string {
+	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		$lang = $_POST['language'];
+		setcookie('lang', $lang, strtotime('+10 years'));
+	} else {
+		$lang = self::detectLanguage();
 	}
+	$file = DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $lang . '.php';
+	if (file_exists($file)) {
+		require_once($file);
+	} else {
+		require_once(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . 'en.php');
+	}
+	return $lang;
+  }
     
     /**
      * Disallow direct access to certain folders and files
