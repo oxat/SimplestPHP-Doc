@@ -121,11 +121,15 @@ class App {
      * Detect and store the browser language
      */
     public static function setLanguage(): string {
-        $lang = self::detectLanguage();
-        require_once(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $lang . '.php');
-        setCookie('lang', $lang, strtotime('+10 years'));
-        return $lang;
-    }
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$lang = $_POST['language'];
+			setcookie('lang', $lang, strtotime('+10 years'));
+		} else {
+			$lang = self::detectLanguage();
+		}
+		require_once(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $lang . '.php');
+		return $lang;
+	}
     
     /**
      * Disallow direct access to certain folders and files
@@ -335,15 +339,23 @@ class App {
      * 
      * @return string
      */
-    public static function detectLanguage(): string {
-        $getFromBrowser = array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
-        $getLanguage = substr($getFromBrowser, 0, 2);
-        $language = strtolower(strip_tags($getLanguage));
-        if (file_exists(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $language . '.php')) {
-            return $language;
-        }
-        return defined('DEFAULT_LANG') ? DEFAULT_LANG : 'en';
-    }
+	public static function detectLanguage(): string {
+		if (isset($_COOKIE['lang']) && file_exists(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $_COOKIE['lang'] . '.php')) {
+			return $_COOKIE['lang'];
+		}
+
+		$getFromBrowser = array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en';
+		$getLanguage = substr($getFromBrowser, 0, 2);
+		$language = strtolower(strip_tags($getLanguage));
+		if (file_exists(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . $language . '.php')) {
+			return $language;
+		}
+
+		if (defined('DEFAULT_LANG') && file_exists(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . DEFAULT_LANG . '.php')) {
+			return DEFAULT_LANG;
+		}
+		return 'en';
+	}
 
     /**
      * Check the request method, like GET, POST etc
