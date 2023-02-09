@@ -189,12 +189,29 @@ class App {
      * @return boolean
      */
     public static function isBot(): bool {
-        if (!array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
-            return false;
-        }
-        return (preg_match('/bing|google|bot|spider/i', $_SERVER['HTTP_USER_AGENT']));
+	if (!array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+		return false;
+	}
+	$botUserAgents = [
+		'Googlebot',
+		'Bingbot',
+		'Slurp',
+		'DuckDuckBot',
+		'Baidu',
+		'Yandex',
+		'Sogou',
+		'Exabot',
+		'facebot',
+		'ia_archiver',
+	];
+	foreach ($botUserAgents as $botUserAgent) {
+		if (strpos($_SERVER['HTTP_USER_AGENT'], $botUserAgent) !== false) {
+		    return true;
+		}
+	    }
+	return false;
     }
-    
+
     /**
      * Detect if the request is from a real user
      * 
