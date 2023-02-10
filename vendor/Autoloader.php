@@ -121,7 +121,7 @@ class App {
      * Detect and store the browser language
      */
    public static function setLanguage(): string {
-	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['language'])) {
 		$lang = $_POST['language'];
 		setcookie('lang', $lang, strtotime('+10 years'));
 	} else {
@@ -134,7 +134,7 @@ class App {
 		require_once(DIRECTORY . SEPARATOR . 'app' . SEPARATOR . 'lang' . SEPARATOR . 'en.php');
 	}
 	return $lang;
-  }
+   }
     
     /**
      * Disallow direct access to certain folders and files
